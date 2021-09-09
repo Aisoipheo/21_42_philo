@@ -13,7 +13,8 @@ OBJS				= $(addprefix $(OBJS_DIR)/, $(C_FILES:.c=.o))
 DEPENDENCIES		= $(OBJS:.o=.d)
 
 CC					= gcc
-CFLAGS				= -O3 -Wall -Werror -Wextra -I$(HDRS_DIR)
+CFLAGS				= -O3 -lpthread -Wall -Werror -Wextra -I$(HDRS_DIR)
+
 AR					= ar
 ARFLAGS				= rcs
 
