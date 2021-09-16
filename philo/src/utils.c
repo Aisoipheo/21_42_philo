@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 16:56:19 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/09 11:03:08 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/16 11:48:57 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,11 +59,10 @@ void	go_sleep(unsigned long long int ms)
 		while (i < 10)
 		{
 			usleep(100);
-			i++;
+			++i;
 		}
 		slept += get_unix_time() - ts;
 	}
-	printf("slept: %llu\n", slept);
 }
 
 unsigned long long int	get_unix_time(void)
