@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 16:38:18 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/16 17:15:39 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/16 17:46:47 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,6 @@
 # define PHILO_H
 
 # include <pthread.h>
-
-typedef struct s_fork
-{
-	pthread_mutex_t		*lock;
-	int					state;
-}	t_fork;
 
 typedef struct s_global
 {
@@ -32,6 +26,7 @@ typedef struct s_global
 	volatile int			gamestate;
 	pthread_mutex_t			*gamelock;
 	pthread_mutex_t			*printer;
+	pthread_mutex_t			**forks;
 	int						ready;
 }	t_global;
 

@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 15:16:05 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/16 17:17:34 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/16 18:01:01 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,25 +35,26 @@ static int	parse_argv(t_global *args, int argc, char *argv[])
 	return (0);
 }
 
-static void	init(pthread_t **t,
+static void	init(pthread_t ***t,
 				t_global *args, t_philo_arg **p)
 {
 	int		i;
 
-	*t = (pthread_t *)malloc(sizeof(pthread_t) * args->nphilo);
+	*t = (pthread_t **)malloc(sizeof(pthread_t *) * args->nphilo);
+	args->forks = (pthread_mutex_t **)malloc(sizeof(pthread_mutex_t *) * args->nphilo);
 	*p = (t_philo_arg *)malloc(sizeof(t_philo_arg) * args->nphilo);
 	pthread_mutex_init(args->gamelock, NULL);
 	pthread_mutex_init(args->printer, NULL);
 	args->gamestate = 2;
 	args->ready = 0;
-	i = 0;
-	while (i < args->nphilo)
+	i = args->nphilo;
+	while (i--)
 	{
+		pthread_mutex_init(args->forks[i], NULL);
 		(*p)[i].id = i;
 		(*p)[i].global = args;
 		(*p)[i].meals = 0;
-		pthread_create(&(*t[i]), NULL, philo_job, &(*p)[i]);
-		++i;
+		pthread_create((*t)[i], NULL, philo_job, &(*p)[i]);
 	}
 }
 
@@ -75,7 +76,7 @@ static void	simulate(t_global *args, t_philo_arg **p)
 		{
 			if ((*p)[i].meals < args->neat)
 				f = 0;
-			if (get_unix_time() - (*p)[i].last_meal > args->dtime)
+			if ((int)(get_unix_time() - (*p)[i].last_meal) > args->dtime)
 			{
 				set_gamestate(args, 0);
 				print_msg(args, i, "died");
@@ -93,17 +94,21 @@ static void	destroy(pthread_t **t,
 
 	i = global->nphilo;
 	while (i--)
-		pthread_join(&(*t)[i], NULL);
+	{
+		pthread_join((*t)[i], NULL);
+		pthread_mutex_destroy(global->forks[i]);
+	}
 	pthread_mutex_destroy(global->gamelock);
 	pthread_mutex_destroy(global->printer);
 	free(*t);
-	free(*p);
+	free(p);
+	free(global->forks);
 }
 
 int	main(int argc, char *argv[])
 {
 	t_global			global;
-	pthread_t			*threads;
+	pthread_t			**threads;
 	t_philo_arg			*philo_args;
 
 	if (argc != 5 && argc != 6)
@@ -112,6 +117,6 @@ int	main(int argc, char *argv[])
 		return (1);
 	init(&threads, &global, &philo_args);
 	simulate(&global, &philo_args);
-	destroy(&threads, &global, &philo_args);
+	destroy(threads, &global, &philo_args);
 	return (0);
 }

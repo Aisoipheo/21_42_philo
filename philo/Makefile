@@ -14,7 +14,8 @@ OBJS				= $(addprefix $(OBJS_DIR)/, $(C_FILES:.c=.o))
 DEPENDENCIES		= $(OBJS:.o=.d)
 
 CC					= gcc
-CFLAGS				= -O3 -lpthread -Wall -Werror -Wextra -I$(HDRS_DIR)
+CFLAGS				= -O3 -Wall -Werror -Wextra -I$(HDRS_DIR)
+LINKER				= $(CFLAGS) -lpthread
 
 AR					= ar
 ARFLAGS				= rcs
@@ -37,7 +38,7 @@ $(OBJS_DIR) :
 	$(MKDIR) $(MKDIRFLAGS) $(OBJS_DIR)
 
 $(NAME) : $(SRCS) $(OBJS_DIR) $(OBJS) Makefile
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
+	$(CC) $(LINKER) -o $(NAME) $(OBJS)
 
 all : $(NAME)
 
