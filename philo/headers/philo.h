@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 16:38:18 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/16 17:46:47 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/18 15:25:02 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ typedef struct s_global
 	int						neat;
 	unsigned long long int	start;
 	volatile int			gamestate;
-	pthread_mutex_t			*gamelock;
-	pthread_mutex_t			*printer;
-	pthread_mutex_t			**forks;
-	int						ready;
+	pthread_mutex_t			gamelock;
+	pthread_mutex_t			printer;
+	pthread_mutex_t			*forks;
+	volatile int			ready;
 }	t_global;
 
 typedef struct s_philo_arg
@@ -36,6 +36,7 @@ typedef struct s_philo_arg
 	unsigned long long int	last_meal;
 	int						meals;
 	t_global				*global;
+	pthread_mutex_t			deathlock;
 }	t_philo_arg;
 
 void	print_msg(t_global *global, int id, const char *restrict msg);

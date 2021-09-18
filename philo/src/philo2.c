@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 16:15:27 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/16 17:44:19 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/18 15:55:49 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,34 +20,37 @@ static void	sync(void *arg)
 	t_philo_arg		*p;
 
 	p = (t_philo_arg *)arg;
-	pthread_mutex_lock(p->global->gamelock);
+	pthread_mutex_lock(&(p->global->gamelock));
 	++(p->global->ready);
-	pthread_mutex_unlock(p->global->gamelock);
+	pthread_mutex_unlock(&(p->global->gamelock));
 	while (p->global->gamestate == 2)
 		;
 }
 
 static void	sleep_think(void *arg)
 {
-	print_msg(((t_philo_arg *)arg)->global, ((t_philo_arg *)arg)->id,
-		" is sleeping");
+	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
+		"is sleeping");
 	go_sleep(((t_philo_arg *)arg)->global->stime);
-	print_msg(((t_philo_arg *)arg)->global, ((t_philo_arg *)arg)->id,
-		" is thinking");
+	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
+		"is thinking");
 }
 
 static void	take_fork(void	*arg, int fork_id)
 {
-	pthread_mutex_lock(((t_philo_arg *)arg)->global->forks[fork_id]);
-	print_msg(((t_philo_arg *)arg)->global, ((t_philo_arg *)arg)->id,
+	pthread_mutex_lock(&(((t_philo_arg *)arg)->global->forks[fork_id]));
+	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
 		"has taken a fork");
 }
 
 static void	eat(void *arg)
 {
-	print_msg(((t_philo_arg *)arg)->global, ((t_philo_arg *)arg)->id,
+	pthread_mutex_lock(&((t_philo_arg *)arg)->deathlock);
+	++((t_philo_arg *)arg)->meals;
+	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
 		"is eating");
 	((t_philo_arg *)arg)->last_meal = get_unix_time();
+	pthread_mutex_unlock(&((t_philo_arg *)arg)->deathlock);
 	go_sleep(((t_philo_arg *)arg)->global->etime);
 }
 
@@ -61,17 +64,15 @@ void	*philo_job(void *arg)
 	while (fetch_gamestate(p->global))
 	{
 		if (p->id % 2)
-			take_fork(arg, p->id);
-		else
-			take_fork(arg, (p->id + 1) % p->global->nphilo);
-		if (p->id % 2 == 0)
-			take_fork(arg, (p->id + 1) % p->global->nphilo);
-		else
-			take_fork(arg, p->id);
+			sleep_think(arg);
+		take_fork(arg, p->id);
+		take_fork(arg, (p->id + 1) % p->global->nphilo);
 		eat(arg);
-		pthread_mutex_unlock(p->global->forks[p->id]);
-		pthread_mutex_unlock(p->global->forks[(p->id + 1) % p->global->nphilo]);
-		sleep_think(arg);
+		pthread_mutex_unlock(&(p->global->forks[p->id]));
+		pthread_mutex_unlock(&(p->global->forks[(p->id + 1)
+				% p->global->nphilo]));
+		if (p->id % 2 == 0)
+			sleep_think(arg);
 	}
 	return (NULL);
 }
