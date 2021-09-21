@@ -121,6 +121,8 @@ int	main(int argc, char *argv[])
 		return (1);
 	init(&threads, &global, &philo_args);
 	simulate(&global, &philo_args);
+	while(global.ready)
+		;
 	destroy(threads, &global, &philo_args);
 	return (0);
 }

@@ -76,5 +76,8 @@ void	*philo_job(void *arg)
 		if (p->id % 2 == 0)
 			sleep_think(arg);
 	}
+	pthread_mutex_lock(&p->global->gamelock);
+	--p->global->ready;
+	pthread_mutex_unlock(&p->global->gamelock);
 	return (NULL);
 }
