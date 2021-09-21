@@ -51,7 +51,7 @@ static void	init(pthread_t **t,
 	while (i--)
 	{
 		pthread_mutex_init(&(args->forks[i]), NULL);
-		pthread_mutex_init(&(*p)->deathlock, NULL);
+		pthread_mutex_init(&(*p)[i].deathlock, NULL);
 		(*p)[i].id = i;
 		(*p)[i].global = args;
 		(*p)[i].meals = 0;
@@ -59,8 +59,6 @@ static void	init(pthread_t **t,
 	}
 	while (args->ready != args->nphilo)
 		;
-	args->start = get_unix_time();
-	args->gamestate = 1;
 }
 
 static void	simulate(t_global *args, t_philo_arg **p)
@@ -68,24 +66,26 @@ static void	simulate(t_global *args, t_philo_arg **p)
 	int		i;
 	int		f;
 
+	args->start = get_unix_time();
+	args->gamestate = 1;
 	while (fetch_gamestate(args))
 	{
+		usleep(100);
 		i = args->nphilo;
 		f = 1;
 		while (i--)
 		{
-			pthread_mutex_lock(&(*p)->deathlock);
+			pthread_mutex_lock(&(*p)[i].deathlock);
 			f = !((*p)[i].meals < args->neat) && f;
 			if ((int)(get_unix_time() - (*p)[i].last_meal) > args->dtime)
 			{
 				set_gamestate(args, 0);
 				print_msg(args, (i + 1), "died");
 			}
-			pthread_mutex_unlock(&(*p)->deathlock);
+			pthread_mutex_unlock(&(*p)[i].deathlock);
 		}
 		if (f && args->neat > -1)
 			set_gamestate(args, 0);
-		usleep(100);
 	}
 }
 
@@ -96,7 +96,10 @@ static void	destroy(pthread_t *t,
 
 	i = global->nphilo;
 	while (i--)
+	{
 		pthread_mutex_destroy(&(global->forks[i]));
+		pthread_mutex_destroy(&(*p)[i].deathlock);
+	}
 	pthread_mutex_destroy(&(global->gamelock));
 	pthread_mutex_destroy(&(global->printer));
 	free(t);

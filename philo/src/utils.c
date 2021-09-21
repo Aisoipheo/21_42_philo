@@ -56,7 +56,7 @@ void	go_sleep(unsigned long long int ms)
 	{
 		ts = get_unix_time();
 		i = 0;
-		while (i < 10)
+		while(i < 5)
 		{
 			usleep(100);
 			++i;
