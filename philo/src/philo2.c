@@ -59,8 +59,10 @@ void	*philo_job(void *arg)
 	t_philo_arg		*p;
 
 	p = (t_philo_arg *)arg;
+	pthread_mutex_lock(&(p->deathlock));
 	sync(arg);
 	p->last_meal = p->global->start;
+	pthread_mutex_unlock(&(p->deathlock));
 	while (fetch_gamestate(p->global))
 	{
 		if (p->id % 2)

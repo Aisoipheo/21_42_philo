@@ -22,7 +22,7 @@ typedef struct s_global
 	int						etime;
 	int						stime;
 	int						neat;
-	unsigned long long int	start;
+	volatile unsigned long long int	start;
 	volatile int			gamestate;
 	pthread_mutex_t			gamelock;
 	pthread_mutex_t			printer;
@@ -33,7 +33,7 @@ typedef struct s_global
 typedef struct s_philo_arg
 {
 	int						id;
-	unsigned long long int	last_meal;
+	volatile unsigned long long int	last_meal;
 	int						meals;
 	t_global				*global;
 	pthread_mutex_t			deathlock;

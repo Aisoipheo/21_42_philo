@@ -58,13 +58,14 @@ static void	init(pthread_t **t,
 		pthread_create(&(*t)[i], NULL, philo_job, &(*p)[i]);
 	}
 	while (args->ready != args->nphilo)
-		;
+		usleep(100);
 }
 
 static void	simulate(t_global *args, t_philo_arg **p)
 {
 	int		i;
 	int		f;
+	unsigned long long int tim;
 
 	args->start = get_unix_time();
 	args->gamestate = 1;
@@ -77,7 +78,8 @@ static void	simulate(t_global *args, t_philo_arg **p)
 		{
 			pthread_mutex_lock(&(*p)[i].deathlock);
 			f = !((*p)[i].meals < args->neat) && f;
-			if ((int)(get_unix_time() - (*p)[i].last_meal) > args->dtime)
+			tim = get_unix_time();
+			if ((int)(tim - (*p)[i].last_meal) > args->dtime)
 			{
 				set_gamestate(args, 0);
 				print_msg(args, (i + 1), "died");
