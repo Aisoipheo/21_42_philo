@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 16:56:19 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/16 11:48:57 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/22 11:53:31 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,21 +48,10 @@ int	my_atoi(const char *s, int *nb)
 void	go_sleep(unsigned long long int ms)
 {
 	unsigned long long int	ts;
-	unsigned long long int	slept;
-	int						i;
 
-	slept = 0;
-	while (slept < ms)
-	{
-		ts = get_unix_time();
-		i = 0;
-		while(i < 5)
-		{
-			usleep(100);
-			++i;
-		}
-		slept += get_unix_time() - ts;
-	}
+	ts = get_unix_time();
+	while (get_unix_time() - ts < ms)
+		usleep(10);
 }
 
 unsigned long long int	get_unix_time(void)

@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 16:15:27 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/18 15:55:49 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/22 12:01:01 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,9 @@ static void	sleep_think(void *arg)
 static void	take_fork(void	*arg, int fork_id)
 {
 	pthread_mutex_lock(&(((t_philo_arg *)arg)->global->forks[fork_id]));
-	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
-		"has taken a fork");
+	if (fetch_gamestate(((t_philo_arg *)arg)->global))
+		print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
+			"has taken a fork");
 }
 
 static void	eat(void *arg)
@@ -63,21 +64,19 @@ void	*philo_job(void *arg)
 	sync(arg);
 	p->last_meal = p->global->start;
 	pthread_mutex_unlock(&(p->deathlock));
-	while (fetch_gamestate(p->global))
+	while (fetch_gamestate(p->global) && p->global->nphilo > 1)
 	{
 		if (p->id % 2)
 			sleep_think(arg);
 		take_fork(arg, p->id);
 		take_fork(arg, (p->id + 1) % p->global->nphilo);
-		eat(arg);
+		if (fetch_gamestate(p->global))
+			eat(arg);
 		pthread_mutex_unlock(&(p->global->forks[p->id]));
 		pthread_mutex_unlock(&(p->global->forks[(p->id + 1)
 				% p->global->nphilo]));
-		if (p->id % 2 == 0)
+		if (p->id % 2 == 0 && fetch_gamestate(p->global))
 			sleep_think(arg);
 	}
-	pthread_mutex_lock(&p->global->gamelock);
-	--p->global->ready;
-	pthread_mutex_unlock(&p->global->gamelock);
 	return (NULL);
 }

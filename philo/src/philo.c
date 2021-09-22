@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 15:16:05 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/18 15:26:43 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/22 11:26:06 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,6 @@ static void	simulate(t_global *args, t_philo_arg **p)
 {
 	int		i;
 	int		f;
-	unsigned long long int tim;
 
 	args->start = get_unix_time();
 	args->gamestate = 1;
@@ -78,8 +77,7 @@ static void	simulate(t_global *args, t_philo_arg **p)
 		{
 			pthread_mutex_lock(&(*p)[i].deathlock);
 			f = !((*p)[i].meals < args->neat) && f;
-			tim = get_unix_time();
-			if ((int)(tim - (*p)[i].last_meal) > args->dtime)
+			if ((int)(get_unix_time() - (*p)[i].last_meal) > args->dtime)
 			{
 				set_gamestate(args, 0);
 				print_msg(args, (i + 1), "died");
@@ -96,6 +94,9 @@ static void	destroy(pthread_t *t,
 {
 	int		i;
 
+	i = global->nphilo;
+	while (i--)
+		pthread_join(t[i], NULL);
 	i = global->nphilo;
 	while (i--)
 	{
@@ -121,8 +122,6 @@ int	main(int argc, char *argv[])
 		return (1);
 	init(&threads, &global, &philo_args);
 	simulate(&global, &philo_args);
-	while(global.ready)
-		;
 	destroy(threads, &global, &philo_args);
 	return (0);
 }
