@@ -32,8 +32,9 @@ static void	sleep_think(void *arg)
 	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
 		"is sleeping");
 	go_sleep(((t_philo_arg *)arg)->global->stime);
-	print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
-		"is thinking");
+	if (fetch_gamestate(((t_philo_arg *)arg)->global))
+		print_msg(((t_philo_arg *)arg)->global, (((t_philo_arg *)arg)->id + 1),
+			"is thinking");
 }
 
 static void	take_fork(void	*arg, int fork_id)
