@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 11:18:56 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/26 16:08:19 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/26 16:10:59 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static void	select__(t_philo_arg *args, int *q, int turn)
 
 	i = args[0].global->nphilo / 2;
 	turn = (turn + 1) % args[0].global->nphilo;
-	while(i--)
+	while (i--)
 	{
 		q[i] = turn;
 		turn = (turn + 2) % args[0].global->nphilo;
@@ -81,11 +81,11 @@ void	*waiter_job(void *arg)
 	{
 		select__(p, q, turn);
 		i = (p[0].global->nphilo / 2);
-		while(i--)
+		while (i--)
 			pthread_mutex_unlock(&p[q[i]].action);
 		go_sleep(p[0].global->etime);
 		i = (p[0].global->nphilo / 2);
-		while(i--)
+		while (i--)
 			pthread_mutex_lock(&p[q[i]].action);
 		turn = (turn + 1) % p[0].global->nphilo;
 	}
