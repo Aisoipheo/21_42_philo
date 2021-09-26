@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/16 16:19:05 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/18 11:42:49 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/26 14:02:54 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,10 @@ int	fetch_gamestate(t_global *global)
 	return (x);
 }
 
-void	print_msg(t_global *global, int id, const char *restrict msg)
+void	print_msg(t_philo_arg *arg, const char *restrict msg)
 {
-	pthread_mutex_lock(&(global->printer));
-	printf("%llu %d %s\n", get_unix_time() - global->start, id, msg);
-	pthread_mutex_unlock(&(global->printer));
+	pthread_mutex_lock(&(arg->global->printer));
+	printf("%llu %d %s\n", get_unix_time() - arg->global->start, arg->id + 1,
+		msg);
+	pthread_mutex_unlock(&(arg->global->printer));
 }

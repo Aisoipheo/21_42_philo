@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 15:16:05 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/22 11:26:06 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/26 14:00:51 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static void	init(pthread_t **t,
 {
 	int		i;
 
-	*t = (pthread_t *)malloc(sizeof(pthread_t) * args->nphilo);
+	*t = (pthread_t *)malloc(sizeof(pthread_t) * (args->nphilo + 1));
 	args->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
 			* args->nphilo);
 	*p = (t_philo_arg *)malloc(sizeof(t_philo_arg) * args->nphilo);
@@ -52,16 +52,18 @@ static void	init(pthread_t **t,
 	{
 		pthread_mutex_init(&(args->forks[i]), NULL);
 		pthread_mutex_init(&(*p)[i].deathlock, NULL);
+		pthread_mutex_init(&(*p)[i].action, NULL);
 		(*p)[i].id = i;
 		(*p)[i].global = args;
 		(*p)[i].meals = 0;
 		pthread_create(&(*t)[i], NULL, philo_job, &(*p)[i]);
 	}
-	while (args->ready != args->nphilo)
-		usleep(100);
+	pthread_create(&(*t)[args->nphilo], NULL, waiter_job, (*p));
+	while (args->ready != (args->nphilo + 1))
+		usleep(25);
 }
 
-static void	simulate(t_global *args, t_philo_arg **p)
+static void	monitor(t_global *args, t_philo_arg **p)
 {
 	int		i;
 	int		f;
@@ -80,7 +82,7 @@ static void	simulate(t_global *args, t_philo_arg **p)
 			if ((int)(get_unix_time() - (*p)[i].last_meal) > args->dtime)
 			{
 				set_gamestate(args, 0);
-				print_msg(args, (i + 1), "died");
+				print_msg(&(*p)[i], "died");
 			}
 			pthread_mutex_unlock(&(*p)[i].deathlock);
 		}
@@ -94,7 +96,7 @@ static void	destroy(pthread_t *t,
 {
 	int		i;
 
-	i = global->nphilo;
+	i = global->nphilo + 1;
 	while (i--)
 		pthread_join(t[i], NULL);
 	i = global->nphilo;
@@ -102,6 +104,7 @@ static void	destroy(pthread_t *t,
 	{
 		pthread_mutex_destroy(&(global->forks[i]));
 		pthread_mutex_destroy(&(*p)[i].deathlock);
+		pthread_mutex_destroy(&(*p)[i].action);
 	}
 	pthread_mutex_destroy(&(global->gamelock));
 	pthread_mutex_destroy(&(global->printer));
@@ -121,7 +124,7 @@ int	main(int argc, char *argv[])
 	if (parse_argv(&global, argc, argv))
 		return (1);
 	init(&threads, &global, &philo_args);
-	simulate(&global, &philo_args);
+	monitor(&global, &philo_args);
 	destroy(threads, &global, &philo_args);
 	return (0);
 }

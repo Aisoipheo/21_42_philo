@@ -7,6 +7,7 @@ OBJS_DIR			= ./obj
 C_FILES				= philo.c \
 					  philo2.c \
 					  philo3.c \
+					  philo4.c \
 					  utils.c
 
 SRCS				= $(addprefix $(SRCS_DIR)/, $(C_FILES))
