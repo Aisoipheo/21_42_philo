@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 15:16:05 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/30 12:09:00 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/09/30 14:05:05 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,14 @@ static void	init(t_global *g, pid_t **pids)
 
 static void	simulate(t_global *g)
 {
-	sem_wait(g->gamelock);
+	int		i;
+
+	i = g->nphilo;
+	if (g->neat > -1)
+		while (i--)
+			sem_wait(g->gamelock);
+	else
+		sem_wait(g->gamelock);
 }
 
 static void	destroy(t_global *g, pid_t *pids)
