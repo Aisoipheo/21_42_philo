@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/22 15:02:30 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/30 12:16:03 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/10/02 12:49:26 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,12 @@ static void	monitor(t_worker *w)
 		if ((int)(get_unix_time() - w->last_meal) > w->global->dtime)
 		{
 			w->is_game = 0;
+			w->is_alive = 0;
 			print_msg(w, "died");
 		}
 		sem_post(w->deathlock);
 		usleep(100);
 	}
-	sem_post(w->global->gamelock);
 }
 
 int	child_proc(t_global *g, int proc_id)
@@ -99,7 +99,6 @@ int	child_proc(t_global *g, int proc_id)
 	arg.is_alive = 0;
 	arg.is_game = 1;
 	arg.forks = g->forks;
-	arg.gamelock = g->gamelock;
 	arg.global = g;
 	pthread_create(&worker, NULL, ft_worker, &arg);
 	monitor(&arg);
@@ -107,5 +106,7 @@ int	child_proc(t_global *g, int proc_id)
 	sem_close(arg.deathlock);
 	sem_unlink(deathlock_name);
 	free(deathlock_name);
+	if (!arg.is_alive)
+		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

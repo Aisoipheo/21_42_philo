@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 16:38:18 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/30 12:10:03 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/10/02 12:48:59 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ typedef struct s_global
 	int								stime;
 	int								neat;
 	sem_t							*printer;
-	sem_t							*gamelock;
 	sem_t							*forks;
 	volatile unsigned long long int	start;
 }	t_global;
@@ -38,7 +37,6 @@ typedef struct s_worker
 	int								id;
 	sem_t							*deathlock;
 	sem_t							*forks;
-	sem_t							*gamelock;
 	int								meals;
 	volatile char					is_alive;
 	volatile char					is_game;

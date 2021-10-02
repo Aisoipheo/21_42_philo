@@ -6,7 +6,7 @@
 /*   By: rdrizzle <rdrizzle@student.21-school.ru    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/04 15:16:05 by rdrizzle          #+#    #+#             */
-/*   Updated: 2021/09/30 14:05:05 by rdrizzle         ###   ########.fr       */
+/*   Updated: 2021/10/02 13:21:44 by rdrizzle         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,9 @@ static void	init(t_global *g, pid_t **pids)
 	*pids = (pid_t *)malloc(sizeof(pid_t) * g->nphilo);
 	i = g->nphilo;
 	sem_unlink(PHILO_PRINTER_NAME);
-	sem_unlink(PHILO_GAMELOCK_NAME);
 	sem_unlink(PHILO_FORKPOOL_NAME);
 	g->forks = sem_open(PHILO_FORKPOOL_NAME, O_CREAT, 0660, g->nphilo);
 	g->printer = sem_open(PHILO_PRINTER_NAME, O_CREAT, 0660, 1);
-	g->gamelock = sem_open(PHILO_GAMELOCK_NAME, O_CREAT, 0660, 0);
 	g->start = get_unix_time();
 	while (i--)
 	{
@@ -62,34 +60,34 @@ static void	init(t_global *g, pid_t **pids)
 	}
 }
 
-static void	simulate(t_global *g)
+static void	simulate(t_global *g, pid_t *pids)
 {
 	int		i;
+	int		status;
 
 	i = g->nphilo;
-	if (g->neat > -1)
-		while (i--)
-			sem_wait(g->gamelock);
-	else
-		sem_wait(g->gamelock);
+	while (i--)
+	{
+		waitpid(0, &status, 0);
+		if (WEXITSTATUS(status) == EXIT_FAILURE)
+		{
+			i = g->nphilo;
+			while (i--)
+				kill(pids[i], SIGKILL);
+			break ;
+		}
+	}
+	i = g->nphilo;
+	while (i--)
+		waitpid(pids[i], NULL, 0);
 }
 
 static void	destroy(t_global *g, pid_t *pids)
 {
-	int		i;
-
-	i = g->nphilo;
-	while (i--)
-		kill(pids[i], 9);
-	i = g->nphilo;
-	while (i--)
-		waitpid(pids[i], NULL, 0);
 	sem_close(g->forks);
 	sem_unlink(PHILO_FORKPOOL_NAME);
 	sem_close(g->printer);
 	sem_unlink(PHILO_PRINTER_NAME);
-	sem_close(g->gamelock);
-	sem_unlink(PHILO_GAMELOCK_NAME);
 	free(pids);
 }
 
@@ -103,7 +101,7 @@ int	main(int argc, char *argv[])
 	if (parse_argv(&global, argc, argv))
 		return (1);
 	init(&global, &pids);
-	simulate(&global);
+	simulate(&global, pids);
 	destroy(&global, pids);
 	return (0);
 }
